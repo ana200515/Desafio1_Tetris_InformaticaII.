@@ -1,20 +1,21 @@
 #ifndef TABLERO_H
 #define TABLERO_H
 
+#include "pieza.h"
+
 class Tablero {
-private:
-    unsigned char* datos;
+public:
     int ancho;
     int alto;
+    unsigned char* filas;
 
-public:
-    Tablero(int _a, int _alt);
+    Tablero(int a, int h);
     ~Tablero();
 
+    void imprimir(Pieza &p);
+    bool colision(Pieza &p);
+    void fijar(Pieza &p);
     void limpiarFilas();
-    bool verificarColision(int fila, unsigned char mascara);
-    void fijarPieza(int fila, unsigned char mascara);
-    void imprimir();
 };
 
 #endif

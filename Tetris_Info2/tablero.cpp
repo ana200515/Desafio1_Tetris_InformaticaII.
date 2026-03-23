@@ -1,53 +1,91 @@
-#include "tablero.h"
 #include <iostream>
+#include "tablero.h"
 
 using namespace std;
 
-Tablero::Tablero(int _a, int _alt) : ancho(_a), alto(_alt) {
-    datos = new unsigned char[alto];
-    for (int i = 0; i < alto; i++) {
-        datos[i] = 0;
-    }
+Tablero::Tablero(int a, int h)
+{
+    ancho = a;
+    alto = h;
+
+    filas = new unsigned char[alto];
+
+    for (int i = 0; i < alto; i++)
+        filas[i] = 0;
 }
 
-Tablero::~Tablero() {
-    delete[] datos;
+Tablero::~Tablero()
+{
+    delete[] filas;
 }
 
-void Tablero::limpiarFilas() {
-    unsigned char filaLlena = 0xFF;
-
+void Tablero::imprimir(Pieza &p)
+{
     for (int i = 0; i < alto; i++) {
-        if (datos[i] == filaLlena) {
-            for (int j = i; j > 0; j--) {
-                datos[j] = datos[j - 1];
+
+        unsigned char filaTemp = filas[i];
+
+        for (int j = 0; j < 4; j++) {
+            int filaPieza = p.posFila + j;
+
+            if (i == filaPieza) {
+                filaTemp |= (p.forma[j] >> p.posCol);
             }
-            datos[0] = 0;
         }
-    }
-}
 
-void Tablero::imprimir() {
-    for (int i = 0; i < alto; i++) {
-        cout << "|";
-        for (int j = 7; j >= 0; j--) {
-            if (datos[i] & (1 << j)) {
+        for (int b = 7; b >= 0; b--) {
+            if (filaTemp & (1 << b))
                 cout << "#";
-            } else {
+            else
                 cout << ".";
-            }
         }
-        cout << "|" << endl;
+
+        cout << endl;
     }
 }
 
-bool Tablero::verificarColision(int fila, unsigned char mascara) {
-    if (fila >= alto) return true;
-    return (datos[fila] & mascara) != 0;
+bool Tablero::colision(Pieza &p)
+{
+    for (int i = 0; i < 4; i++) {
+
+        int filaTablero = p.posFila + i;
+
+        if (filaTablero >= alto)
+            return true;
+
+        unsigned char piezaFila = p.forma[i] >> p.posCol;
+
+        if (filas[filaTablero] & piezaFila)
+            return true;
+    }
+
+    return false;
 }
 
-void Tablero::fijarPieza(int fila, unsigned char mascara) {
-    if (fila < alto) {
-        datos[fila] |= mascara;
+void Tablero::fijar(Pieza &p)
+{
+    for (int i = 0; i < 4; i++) {
+
+        int filaTablero = p.posFila + i;
+
+        if (filaTablero < alto) {
+            filas[filaTablero] |= (p.forma[i] >> p.posCol);
+        }
+    }
+}
+
+void Tablero::limpiarFilas()
+{
+    for (int i = 0; i < alto; i++) {
+
+        if (filas[i] == 0b11111111) {
+
+            for (int j = i; j > 0; j--)
+                filas[j] = filas[j - 1];
+
+            filas[0] = 0;
+
+            i--;
+        }
     }
 }
